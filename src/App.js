@@ -10,7 +10,7 @@ class App extends React.Component {
     }
   }
 
-  componentWillMount() {
+  componentDidMount() {
     blogService.getAll().then(blogs =>
       this.setState({ blogs })
     )
