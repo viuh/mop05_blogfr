@@ -21,13 +21,14 @@ class App extends React.Component {
 
   login = async (event) => {
     event.preventDefault()
+
     try {
       const user = await loginService.login({
         username: this.state.username,
         password: this.state.password
       })
 
-      window.localStorage.setItem('loggedNoteappUser', JSON.stringify(user))
+      window.localStorage.setItem('loggedappUser', JSON.stringify(user))
       noteService.setToken(user.token)
 
       console.log('Useri:', user)
@@ -53,7 +54,17 @@ class App extends React.Component {
     blogService.getAll().then(blogs =>
       this.setState({ blogs })
     )
+    const loggedUserJSON = window.localStorage.getItem('loggedappUser')
+    if (loggedUserJSON) {
+      const user = JSON.parse(loggedUserJSON)
+      this.setState({user})
+      noteService.setToken(user.token)
+    }
   } 
+
+  logout = async (event) => {
+    window.localStorage.clear() // kaek pois!
+  }
 
 
   render() {
@@ -106,7 +117,9 @@ class App extends React.Component {
       {this.state.user === null ?
         loginForm() :
         <div>
-          <p>{this.state.currentuser} logged in</p>
+          <p>{this.state.currentuser} logged in &nbsp;
+          <form onSubmit={this.logout}><button>logout</button></form>
+          </p>
           {showBlogs()}
         </div>
       }
