@@ -2,7 +2,7 @@ import React from 'react'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
 import Notification from './components/Notification'
-import noteService from './services/notes'
+//import noteService from './services/notes'
 import loginService from './services/login'
 
 
@@ -15,7 +15,51 @@ class App extends React.Component {
       blogs: [],
       error: '',
       user: null,
-      currentuser: null
+      currentuser: null,
+      title: '',
+      author:'',
+      url:'',
+      info: '',
+    }
+  }
+
+  addBlog = async (event) => {
+    event.preventDefault()
+
+    console.log('Wanna add?', this.state)
+
+    try {
+
+      const miBlog = {
+        title: this.state.title,
+        author: this.state.author,
+        url: this.state.url        
+      }
+  
+      //let temp = this.state.blogs   //???
+      let bname = this.state.title
+  
+
+      const createdBlog = await blogService.create(miBlog)
+
+      console.log('Luotiin?', createdBlog)
+
+      this.setState({ title: '', author: '', url:''
+      , blogs : this.state.blogs.concat(createdBlog)
+      , info: `Blog '${bname}' added.`
+      , msgtype: 'info'
+      })
+      setTimeout(() => {
+        this.setState({info: null , msgtype:'info'})
+      }, 5000)
+    }
+    catch (exception) {
+      this.setState({
+        error: 'New blog could not be added',
+      })
+      setTimeout(() => {
+        this.setState({ error: null , msgtype:'error' })
+      }, 5000)
     }
   }
 
@@ -28,8 +72,10 @@ class App extends React.Component {
         password: this.state.password
       })
 
+
       window.localStorage.setItem('loggedappUser', JSON.stringify(user))
-      noteService.setToken(user.token)
+      
+      blogService.setToken(user.token)
 
       console.log('Useri:', user)
 
@@ -37,6 +83,7 @@ class App extends React.Component {
       this.setState({ username: '', password: '', user })
     } catch (exception) {
       this.setState({
+        msgtype: 'error',
         error: 'Username or password erroneous',
       })
       setTimeout(() => {
@@ -49,6 +96,10 @@ class App extends React.Component {
     this.setState({ [event.target.name]: event.target.value })
   }
 
+  handleBlogFieldChange = (event) => {
+    this.setState({ [event.target.name]: event.target.value })
+  }
+
 
   componentDidMount() {
     blogService.getAll().then(blogs =>
@@ -58,7 +109,7 @@ class App extends React.Component {
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON)
       this.setState({user})
-      noteService.setToken(user.token)
+      blogService.setToken(user.token)
     }
   } 
 
@@ -75,8 +126,40 @@ class App extends React.Component {
       <div>
         <h2>Blogs</h2>
         {this.state.blogs.map(blog => 
-          <Blog key={blog._id} blog={blog}/>
+          <Blog key={blog._id} id={blog._id} blog={blog}/>
         )}
+      </div>
+    )
+
+    const addBlogForm = () => (
+      <div>
+      <h2>Create new</h2>
+      <form onSubmit={this.addBlog}>
+      <div>
+        title
+        <input
+          type="text"
+          name="title" 
+          value={this.state.title}
+          onChange={this.handleBlogFieldChange}
+        /><br/>
+        author
+        <input
+          type="text"
+          name="author" 
+          value={this.state.author}
+          onChange={this.handleBlogFieldChange}
+        /><br/>
+        url
+        <input
+          type="text"
+          name="url" 
+          value={this.state.url}
+          onChange={this.handleBlogFieldChange}
+        /><br/>
+      </div>
+      <button>Create</button>
+      </form>
       </div>
     )
 
@@ -89,7 +172,7 @@ class App extends React.Component {
             Username
             <input
               type="text"
-              name="username" autocomplete="username"
+              name="username" autoComplete="username"
               value={this.state.username}
               onChange={this.handleLoginFieldChange}
             />
@@ -98,7 +181,7 @@ class App extends React.Component {
             Password
             <input
               type="password"
-              name="password" autocomplete="password"
+              name="password" autoComplete="password"
               value={this.state.password}
               onChange={this.handleLoginFieldChange}
             />
@@ -112,14 +195,15 @@ class App extends React.Component {
 
     return (
       <div>
-      <Notification message={this.state.error} />
+      <Notification message={this.state.error} msgtype={this.state.msgtype} />
 
       {this.state.user === null ?
         loginForm() :
         <div>
-          <p>{this.state.currentuser} logged in &nbsp;
+          <p>{this.state.user.name} logged in &nbsp;</p>
           <form onSubmit={this.logout}><button>logout</button></form>
-          </p>
+          {addBlogForm()}
+
           {showBlogs()}
         </div>
       }
