@@ -1,22 +1,22 @@
 import React from 'react'
 
 const Notification = ({ message , msgtype }) => {
-  if (message === null) {
+  if (message === null || message==='') {
     return null
   }
+
   if (msgtype === "error") {
+    ;
+  } else {
+    msgtype = "info"
+  }
+
+  //console.log('Notification abt: ', message , 'msgtype:', msgtype)
     return (
-    <div className="error">
+    <div className={msgtype}>
       {message}
     </div>
     )
-  } else {
-    return (
-      <div className="info">
-        {message}
-      </div>
-      )
-  }
 
 }
 

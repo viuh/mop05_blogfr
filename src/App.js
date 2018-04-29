@@ -4,6 +4,7 @@ import blogService from './services/blogs'
 import Notification from './components/Notification'
 //import noteService from './services/notes'
 import loginService from './services/login'
+import './index.css'
 
 
 class App extends React.Component {
@@ -19,46 +20,46 @@ class App extends React.Component {
       title: '',
       author:'',
       url:'',
-      info: '',
     }
   }
 
   addBlog = async (event) => {
     event.preventDefault()
 
-    console.log('Wanna add?', this.state)
-
     try {
 
+
+
       const miBlog = {
-        title: this.state.title,
+        title: this.state.title === null ? null : this.state.title,
         author: this.state.author,
         url: this.state.url        
       }
   
-      //let temp = this.state.blogs   //???
       let bname = this.state.title
   
-
       const createdBlog = await blogService.create(miBlog)
 
       console.log('Luotiin?', createdBlog)
 
-      this.setState({ title: '', author: '', url:''
-      , blogs : this.state.blogs.concat(createdBlog)
-      , info: `Blog '${bname}' added.`
-      , msgtype: 'info'
+      this.setState({
+        title: '', author: '', url:''
+      , blogs : this.state.blogs.concat(createdBlog),
+        error: `Blog '${bname}' added.`,
+        msgtype: 'info' 
       })
       setTimeout(() => {
-        this.setState({info: null , msgtype:'info'})
+        this.setState({ error:null, msgtype:null})
       }, 5000)
+      
     }
     catch (exception) {
       this.setState({
         error: 'New blog could not be added',
+        msgtype: 'error'
       })
       setTimeout(() => {
-        this.setState({ error: null , msgtype:'error' })
+        this.setState({ error: null , msgtype:null })
       }, 5000)
     }
   }
@@ -84,7 +85,7 @@ class App extends React.Component {
     } catch (exception) {
       this.setState({
         msgtype: 'error',
-        error: 'Username or password erroneous',
+        error: 'Username or password erroneous'
       })
       setTimeout(() => {
         this.setState({ error: null })
