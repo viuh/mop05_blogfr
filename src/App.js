@@ -5,6 +5,8 @@ import Notification from './components/Notification'
 //import noteService from './services/notes'
 import loginService from './services/login'
 import './index.css'
+import Togglable from './components/Togglable'
+import LoginForm from './components/LoginForm'
 
 
 class App extends React.Component {
@@ -14,7 +16,7 @@ class App extends React.Component {
       username: '',
       password: '',
       blogs: [],
-      error: '',
+      error: '',  // also info msgs use this 
       user: null,
       currentuser: null,
       title: '',
@@ -101,6 +103,10 @@ class App extends React.Component {
     this.setState({ [event.target.name]: event.target.value })
   }
 
+  toggleVisible = () => {
+    this.setState({ showAll: !this.state.showAll })
+  }
+
 
   componentDidMount() {
     blogService.getAll().then(blogs =>
@@ -165,6 +171,18 @@ class App extends React.Component {
     )
 
     const loginForm = () => (
+      <Togglable buttonLabel="login">
+        <LoginForm
+          visible={this.state.visible}
+          username={this.state.username}
+          password={this.state.password}
+          handleChange={this.handleLoginFieldChange}
+          handleSubmit={this.login}
+        />
+      </Togglable>
+    )
+
+    const loginFormOLD = () => (
       <div>
         <h2>Log in to application</h2>
 
@@ -198,6 +216,7 @@ class App extends React.Component {
       <div>
       <Notification message={this.state.error} msgtype={this.state.msgtype} />
 
+      <h2>Welcome to blog app</h2>
       {this.state.user === null ?
         loginForm() :
         <div>
