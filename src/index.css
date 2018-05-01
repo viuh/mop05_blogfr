@@ -22,3 +22,25 @@ body {
   border-radius: 3px;
 
 }
+
+.blogheader {
+  border-style: solid;
+  border-radius: 1;
+  margin: 2px;
+}
+
+.blogbody {
+  paddingTop: 10;
+  paddingLeft: 2;
+  border: 'solid';
+  borderWidth: 1;
+  marginBottom: 5
+}
+
+.hidden {
+  display:none
+}
+
+.visible {
+  display: block
+}
