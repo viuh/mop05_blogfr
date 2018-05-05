@@ -41,7 +41,7 @@ const Blog = ({blog, adder, fu1, fu2, classStyle, visible, lastopened,clicksdone
     <div key={blog._id} id="{blog._id}" classnxame="{classStyle}"
     className={tyyli({blog,visible, lastopened,clicksdone})} >
 <a target="_new" href="`blog.url`">{blog.url}</a>
-{blog.likes} likes <button onClick={fu2}>like</button><br/>
+&nbsp;&nbsp;{blog.likes} likes <button onClick={fu2}>like</button><br/>
 </div>
   </div>  
 )

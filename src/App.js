@@ -14,6 +14,17 @@ import LoginForm from './components/LoginForm'
 const jwt = require('jsonwebtoken')
 
 
+const sortBlogs = (blogs) => {
+
+  let allBlogs = blogs
+  allBlogs.sort ((a,b) => b.likes - a.likes)
+
+  console.log('Sorted blogs:', allBlogs)
+
+  return allBlogs
+}
+
+
 const Blogy = ({blog, fu1}) => {
   return
   (
@@ -234,11 +245,10 @@ class App extends React.Component {
   render() {
 
 
-    const showBlogs = () => (
-
+    const showBlogs = (blogsit) => (
       <div>
         <h2>Blogs</h2>
-        {this.state.blogs.map(blog => 
+        {blogsit.map(blog => 
           <Blog key={blog._id} id={blog._id} blog={blog}
           adder='tbs'
           newlikes = {this.state.likecounter}
@@ -384,7 +394,7 @@ class App extends React.Component {
           <form onSubmit={this.logout}><button>logout</button></form>
           {addBlogForm()}
 
-          {showBlogs()}
+          {showBlogs(sortBlogs(this.state.blogs))}
         </div>
       }
 
