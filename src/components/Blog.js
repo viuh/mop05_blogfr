@@ -31,20 +31,22 @@ const tyyli = ({blog,visible,lastopened,clicksdone}) => {
 }
 
 
-const Blog = ({blog, adder, fu1, fu2, classStyle, visible, lastopened,clicksdone}) => (
+const Blog = ({blog, adder, fu1, fu2, classStyle, visible, lastopened,clicksdone,
+  likedOne, likedcounter}) => (
+
+
 
   <div>
     <div className="blogheader" onClick={fu1}>{blog.title} {blog.author}</div>
     <div key={blog._id} id="{blog._id}" classnxame="{classStyle}"
     className={tyyli({blog,visible, lastopened,clicksdone})} >
 <a target="_new" href="`blog.url`">{blog.url}</a>
-<form onSubmit={fu2}>
-{blog.likes} likes <button>like</button><br/>
-</form>
-added by {blog.user !== null ? blog.user.name : '-'   }
+{blog.likes} likes <button onClick={fu2}>like</button><br/>
 </div>
   </div>  
 )
 
 export default Blog
 
+//added by {(blog.user !== null || blog.user!==undefined) ? blog.user.name : '-'   }
+//<form onSubmit={fu2}> ... </form>

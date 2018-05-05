@@ -10,6 +10,19 @@ const getAll = () => {
   return request.then(response => response.data)
 }
 
+
+const getOne = async (id) => {
+
+  console.log('Get one: ',id)
+
+  const allBlogs = await getAll()
+  let chosen = allBlogs.filter({"_id":id})
+  console.log('Found one:', chosen)
+  return chosen
+
+
+}
+
 const setToken = (newToken) => {
   token = `bearer ${newToken}`
 }
@@ -38,5 +51,5 @@ const deletex = async (id) => {
 }
   
 
-export default { getAll, create, update,deletex, setToken }
+export default { getAll, create, update,deletex, setToken,getOne }
 

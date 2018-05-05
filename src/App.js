@@ -61,7 +61,9 @@ class App extends React.Component {
       blogvisible: false,
       blogvisibleid: '', 
       lastopened: null,
-      clicksdone : 0
+      clicksdone : 0,
+      todoLikeUpdate : '',
+      likecounter: 0,
     }
   }
 
@@ -78,13 +80,7 @@ class App extends React.Component {
 
       console.log('Blogin lisaaja: ', decodedToken.id)
       let bname = this.state.title
-  
-      //console.log('Blogin luojanen:', createdBlog._id,':', this.state.currentuserid, 'Tai:', this.state.user)
- 
-      //let allusers = await userService.getAll()
-      //let theOne = allusers.find({_id: decodedToken.id})
-      //console.log('*** Usei', theOne)
-      
+        
       const miBlog = {
         title: this.state.title === null ? null : this.state.title,
         author: this.state.author,
@@ -163,6 +159,40 @@ class App extends React.Component {
     this.setState({ showAll: !this.state.showAll })
   }
 
+  handleLikeClick = async (idx) =>  {
+
+    let temp = idx.id
+    console.log('Liketys:',temp, " blogi:", idx)
+    let curBlog = idx //this.state.blogs.filter({"id": temp})
+    console.log('Curblog', curBlog)
+
+
+
+    try {
+      let curLikes = curBlog.likes+1
+      let updBlog = curBlog
+      updBlog.likes = curLikes
+      console.log('Upd blogi: ', updBlog)
+
+      blogService.update(temp, updBlog)
+      let allBlogs = this.state.blogs
+      delete allBlogs[temp]
+      allBlogs.concat(updBlog)
+
+      this.setState({blogs:allBlogs})
+
+    } catch (exception) {
+      this.setState({
+        msgtype: 'error',
+        error: 'Could not store update'+temp+exception
+      })
+      setTimeout(() => {
+        this.setState({ error: null })
+      }, 5000)
+    }
+  }
+
+
   handleClick = (idx) => {
     //https://stackoverflow.com/a/47130799/364931
     //console.log("AAA",text,' id ',idx, ' eventti : ', event);
@@ -211,7 +241,10 @@ class App extends React.Component {
         {this.state.blogs.map(blog => 
           <Blog key={blog._id} id={blog._id} blog={blog}
           adder='tbs'
+          newlikes = {this.state.likecounter}
+          likedOne = {this.state.likedOne}
           fu1={()=>this.handleClick(blog)}
+          fu2={()=>this.handleLikeClick(blog)}
           visible={this.state.blogvisibleid}
           lastopened = {this.state.lastopened}
           counter = {this.state.clicksdone}
