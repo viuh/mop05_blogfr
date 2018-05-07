@@ -14,6 +14,22 @@ import LoginForm from './components/LoginForm'
 const jwt = require('jsonwebtoken')
 
 
+const getTokenOwner = (tokeni) => {
+
+  let secru = "aksdjuioouimzxcvsdfd"
+
+  try {
+    const decodedToken = jwt.verify(tokeni, secru)
+    console.log('Blogin lisaaja: ', decodedToken.id)
+    return decodedToken.id
+
+  } catch (exception) {
+    console.log('Could not get user.id from token')
+    return null
+  }
+
+}
+
 const sortBlogs = (blogs) => {
 
   let allBlogs = blogs
@@ -23,6 +39,32 @@ const sortBlogs = (blogs) => {
 
   return allBlogs
 }
+
+//DeletableBlog(this.state.blogs,this.state.currentuserid)
+
+const deletableBlog = (ablog, me) => {
+
+  console.log('Blogi:', ablog)
+  console.log('Currentuser:', getTokenOwner(me) )
+
+  let res = false
+
+  try {
+    if (ablog.user._id === me || ablog.user === undefined || ablog.user === me)
+    {
+      console.log('Blogiowner === this', me)
+      res =  true
+    }
+  }
+  catch (exception) {  // typically if user is not definedx
+    console.log('No luck?', ablog , ' vs. ', me)
+    return true
+  }
+  
+  return res
+
+}
+
 
 
 const Blogy = ({blog, fu1}) => {
@@ -66,6 +108,7 @@ class App extends React.Component {
       error: '',  // also info msgs use this 
       user: null,
       currentuser: null,
+      currentuserid : null,
       title: '',
       author:'',  
       url:'',
@@ -91,12 +134,16 @@ class App extends React.Component {
 
       console.log('Blogin lisaaja: ', decodedToken.id)
       let bname = this.state.title
-        
+      
+      // todo - should this actually store the user as object ...
+      //let miUser = userService.find({_id: decodedToken.id})
+      //console.log('dui!',miUser)
+
       const miBlog = {
         title: this.state.title === null ? null : this.state.title,
         author: this.state.author,
         url: this.state.url,               
-        user: decodedToken.id
+        userid: decodedToken.id
       }
   
       const createdBlog = await blogService.create(miBlog)
@@ -137,14 +184,21 @@ class App extends React.Component {
         password: this.state.password
       })
 
-
       window.localStorage.setItem('loggedappUser', JSON.stringify(user))
       
       blogService.setToken(user.token)
 
-      //console.log('Useri:', user)
+      let secru = "aksdjuioouimzxcvsdfd"
+      let tokeni = user.token
 
-      this.setState({ currentuserid : user._id})
+      const decodedToken = jwt.verify(tokeni, secru)
+      //console.log('Blogin lisaaja: ', decodedToken.id)
+      user._id = decodedToken.id
+  
+
+      console.log('Useri:', user, '---', user.token)
+
+      this.setState({ currentuserid : decodedToken.id})
       this.setState({ currentuser : user.name})
       this.setState({ username: '', password: '', user: user })
     } catch (exception) {
@@ -169,6 +223,34 @@ class App extends React.Component {
   toggleVisible = () => {
     this.setState({ showAll: !this.state.showAll })
   }
+
+  handleDeleteClick = async (idx) =>  {
+
+    let temp = idx.id
+    console.log('Deletys:',temp, " blogi:", idx)
+    let res     
+    try {
+      res = blogService.deletex(temp)
+      console.log('Resultti?', res.response.status)
+
+      if (res.response.status !== '200') { } else {
+      let allBlogs = this.state.blogs
+      console.log('All blogs nyte:', allBlogs, ' dellattava: ', temp)
+      delete allBlogs[temp]
+      this.setState({blogs:allBlogs})
+      }
+    } catch (exception) {
+      this.setState({
+        msgtype: 'error',
+        error: 'Could not delete'+temp
+      })
+      setTimeout(() => {
+        this.setState({ error: null })
+      }, 5000)
+    }
+  }
+
+
 
   handleLikeClick = async (idx) =>  {
 
@@ -233,6 +315,7 @@ class App extends React.Component {
     const loggedUserJSON = window.localStorage.getItem('loggedappUser')
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON)
+      console.log('Userixxx', user)
       this.setState({user: user})   // user?
       blogService.setToken(user.token)
     }
@@ -249,6 +332,7 @@ class App extends React.Component {
       <div>
         <h2>Blogs</h2>
         {blogsit.map(blog => 
+          <div key={blog._id}>
           <Blog key={blog._id} id={blog._id} blog={blog}
           adder='tbs'
           newlikes = {this.state.likecounter}
@@ -258,54 +342,16 @@ class App extends React.Component {
           visible={this.state.blogvisibleid}
           lastopened = {this.state.lastopened}
           counter = {this.state.clicksdone}
+          showdelete={deletableBlog(blog,this.state.user.token)}
+          fu3={()=>this.handleDeleteClick(blog)}
+          currentuser={this.state.currentuserid}
           />
+          </div>
         )}
       </div>
     )
 
 
-    const showBlogs3 = () => (
-      <div>    
-        <h2>Blogs</h2>
-        {this.state.blogs.map(blog => 
-        
-        <TogglableDiv key={blog._id} id={blog._id} ref={component => this.blogRow = component}>
-          <Blog key={blog._id} id={blog._id} blog={blog} />
-          </TogglableDiv>
-          )
-        }
-        </div>
-    )
-
-    const showBlogs2 = () => (
-      <div>    
-        <h2>Blogs</h2>
-        {this.state.blogs.map(blog => 
-        
-          <Blog key={blog._id} id={blog._id} blog={blog} 
-          adder={blog.user===null ? 'none' : blog.user }
-          fu1={(e)=>this.handleClick(e,blog._id)} 
-          classStyle={this.state.blogvisible ? 'blogbody, visible':'blogbody, hidden'}
-          
-          />
-          )
-        }
-        </div>
-    )
-
-
-    const showBlogs1 = () => (
-
-      <div>
-        <h2>Blogs</h2>
-        {this.state.blogs.map(blog => 
-          <Blog key={blog._id} id={blog._id} blog={blog}
-          adder='tbd'
-          fu1={(e)=>this.handleClick(e,blog._id)}
-          />
-        )}
-      </div>
-    )
 
     const addBlogForm = () => (
       <div>
@@ -350,36 +396,6 @@ class App extends React.Component {
         />
       </Togglable>
     )
-
-    const loginFormOLD = () => (
-      <div>
-        <h2>Log in to application</h2>
-
-        <form onSubmit={this.login}>
-          <div>
-            Username
-            <input
-              type="text"
-              name="username" autoComplete="username"
-              value={this.state.username}
-              onChange={this.handleLoginFieldChange}
-            />
-          </div>
-          <div>
-            Password
-            <input
-              type="password"
-              name="password" autoComplete="password"
-              value={this.state.password}
-              onChange={this.handleLoginFieldChange}
-            />
-          </div>
-          <button>Log in</button>
-        </form>
-      </div>
-    )
-
-
 
     return (
       <div>
