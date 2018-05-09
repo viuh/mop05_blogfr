@@ -49,7 +49,7 @@ const deletableBlog = (ablog, me) => {
 
   let res = false
 
-  try {
+  try {  //tyypin mukainen iffittely?
     if (ablog.user._id === me || ablog.user === undefined || ablog.user === me)
     {
       console.log('Blogiowner === this', me)
