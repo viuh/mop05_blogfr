@@ -1,10 +1,6 @@
 import React from 'react'
 import '../index.css'
 
-//  {  console.log('Blogi:',blog.title, '-url-:', blog.url) }
-//let hideWhenVisible = { display: visible === blog.id ? 'none' : '' }
-//let showWhenVisible = { display: visible === blog.id ? '' : 'none' }
-
 const tyyli = ({blog,visible,lastopened,clicksdone}) => {
 
   //console.log('Toggling ', blog.id)
@@ -34,8 +30,9 @@ const Blog = ({blog, adder, fu1, fu2, classStyle, visible, lastopened,clicksdone
     className={tyyli({blog,visible, lastopened,clicksdone})} >
 <a target="_new" href="`blog.url`">{blog.url}</a>
 &nbsp;&nbsp;{blog.likes} likes <button className="likebutton" onClick={fu2}>like</button><br/>
-{ (showdelete === true) ? 
-  (<div></div>) : (<button className="deletebutton" onClick={fu3}>Delete</button> ) }
+  { (showdelete === true) ? 
+  (<div></div>):(<button className="deletebutton" onClick={fu3}>Delete</button>)
+  }
 </div>
    </div>
 )
